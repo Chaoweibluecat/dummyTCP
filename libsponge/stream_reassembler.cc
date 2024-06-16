@@ -80,3 +80,29 @@ void Buffer::processQueue() {
             _queue.pop_front();
         }
     }
+
+    void Buffer::push_substring(const std::string &data, const uint64_t index, const bool eof) {
+        // 1.设置buffer中对应字节
+        for (size_t i = 0; i < data.length(); ++i) {
+            auto idx = index + i;
+            if (idx >= _size) {
+            break;
+            }
+            _data[idx] = data.at(i);
+        }
+        if (eof) {
+            _eof = true;
+        }
+        // 2.将新字节序列的start-end 插入所有队列当前等待中（按start-index大小排列）
+        auto it = _queue.begin();
+        for (; it != _queue.end(); it ++) {
+            if (it->first >= index) {
+            break ;
+            }
+        }
+        _queue.emplace(it, index, index + data.length() - 1);
+        // 3.合并数组元素 todo 优化:无需遍历,理论上来说处理插入元素前后元素即可
+        processQueue();
+    };
+
+

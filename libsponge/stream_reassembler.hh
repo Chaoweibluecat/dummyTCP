@@ -9,7 +9,13 @@
 #include <vector>
 #include <memory>
 
-class Buffer {
+/**
+ * 内部的ringbuffer;
+ * 试想 0 1 2 3 4 （size = 5）
+ * 先进 2,4; 然后进0, 0此处可以输出; 窗口可以前移, 5可以入队,为了不宜动1-4的位置,5就通过circular buffering直接写在0的位置
+ * 所以实际写的位置为 idx % size
+ */
+class ReassembleBuffer {
   public:
     std::vector<char> _data;
     size_t _current_idx;
@@ -17,7 +23,7 @@ class Buffer {
     std::list<std::pair<size_t, size_t>> _queue;
     size_t _size;
     bool _eof;
-    Buffer(const size_t size) :  _data(), _current_idx(0), _queue(),  _size(size), _eof(false){
+    ReassembleBuffer(const size_t size) :  _data(),_current_idx(0), _queue(),  _size(size), _eof(false){
         _data.reserve(size);
         for (size_t i = 0; i < size; ++i) {
             _data.push_back(0);
@@ -28,7 +34,7 @@ class Buffer {
     std::string genString(const size_t start, const size_t end) {
         std::string ret;
         for (size_t i = start; i <= end; ++i) {
-            ret.push_back(_data.at(i));
+            ret.push_back(_data.at(i % _size));
         }
         return {ret};
     }
@@ -46,7 +52,8 @@ class StreamReassembler {
     size_t _capacity;    //!< The maximum number of bytes
 //    std::list<QueueElement> _queueing_elements = {};
     size_t _current_idx = 0;
-    std::unique_ptr<Buffer> _buffer;
+    std::unique_ptr<ReassembleBuffer> _buffer;
+    size_t _max_acceptable_idx();
   public:
     //! \brief Construct a `StreamReassembler` that will store up to `capacity` bytes.
     //! \note This capacity limits both the bytes that have been reassembled,

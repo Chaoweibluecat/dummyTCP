@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
             if (const uint32_t tval =
                     (test_header[8] << 24) | (test_header[9] << 16) | (test_header[10] << 8) | test_header[11];
                 test_1.ackno.raw_value() != tval) {
-                throw runtime_error("bad parse: wrong ackno");
+                throw runtime_error("bad parse: wrong _ackno");
             }
             if (const uint8_t tval = (test_1.urg ? 0x20 : 0) | (test_1.ack ? 0x10 : 0) | (test_1.psh ? 0x08 : 0) |
                                      (test_1.rst ? 0x04 : 0) | (test_1.syn ? 0x02 : 0) | (test_1.fin ? 0x01 : 0);

@@ -19,6 +19,8 @@ class TCPReceiver {
 
     //! The maximum number of bytes we'll store.
     size_t _capacity;
+    std::optional<WrappingInt32> _initial_seqno = std::optional<WrappingInt32>();
+    std::optional<uint64_t> _checkpoint = std::optional<uint64_t>();
 
   public:
     //! \brief Construct a TCP receiver
@@ -30,7 +32,7 @@ class TCPReceiver {
     //! \name Accessors to provide feedback to the remote TCPSender
     //!@{
 
-    //! \brief The ackno that should be sent to the peer
+    //! \brief The _ackno that should be sent to the peer
     //! \returns empty if no SYN has been received
     //!
     //! This is the beginning of the receiver's window, or in other words, the sequence number
@@ -46,7 +48,7 @@ class TCPReceiver {
     //! Formally: the difference between (a) the sequence number of
     //! the first byte that falls after the window (and will not be
     //! accepted by the receiver) and (b) the sequence number of the
-    //! beginning of the window (the ackno).
+    //! beginning of the window (the _ackno).
     size_t window_size() const;
     //!@}
 
@@ -61,7 +63,11 @@ class TCPReceiver {
     //!@{
     ByteStream &stream_out() { return _reassembler.stream_out(); }
     const ByteStream &stream_out() const { return _reassembler.stream_out(); }
+
+  private:
+    static size_t seg_length(const TCPSegment& segment) ;
     //!@}
+    uint64_t real_ackno() const;
 };
 
 #endif  // SPONGE_LIBSPONGE_TCP_RECEIVER_HH

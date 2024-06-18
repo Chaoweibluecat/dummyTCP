@@ -83,7 +83,7 @@ string TCPHeader::to_string() const {
     ss << hex << boolalpha << "TCP source port: " << +sport << '\n'
        << "TCP dest port: " << +dport << '\n'
        << "TCP seqno: " << seqno << '\n'
-       << "TCP ackno: " << ackno << '\n'
+       << "TCP _ackno: " << ackno << '\n'
        << "TCP doff: " << +doff << '\n'
        << "Flags: urg: " << urg << " ack: " << ack << " psh: " << psh << " rst: " << rst << " syn: " << syn
        << " fin: " << fin << '\n'

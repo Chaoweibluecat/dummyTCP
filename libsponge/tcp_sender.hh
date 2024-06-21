@@ -22,15 +22,27 @@ class TCPSender {
 
     //! outbound queue of segments that the TCPSender wants sent
     std::queue<TCPSegment> _segments_out{};
+    std::list<TCPSegment> _un_ack_buffer{};
 
     //! retransmission timer for the connection
     unsigned int _initial_retransmission_timeout;
+    unsigned int _current_rto{_initial_retransmission_timeout};
+    unsigned int _con_retrans_count {0};
+    unsigned int _timer{_initial_retransmission_timeout};
+    bool _timer_started = false;
 
     //! outgoing stream of bytes that have not yet been sent
     ByteStream _stream;
 
     //! the (absolute) sequence number for the next byte to be sent
     uint64_t _next_seqno{0};
+    /**
+     * 接受到ack的最新的字节序号
+     */
+    uint64_t _ack_no{0};
+    uint16_t _window_size{1};
+    uint64_t _checkpoint{0};
+    bool _fin_sent = false;
 
   public:
     //! Initialize a TCPSender
@@ -52,6 +64,7 @@ class TCPSender {
 
     //! \brief Generate an empty-payload segment (useful for creating empty ACK segments)
     void send_empty_segment();
+    void start_timer();
 
     //! \brief create and send segments to fill as much of the window as possible
     void fill_window();
@@ -86,7 +99,10 @@ class TCPSender {
 
     //! \brief relative seqno for the next byte to be sent
     WrappingInt32 next_seqno() const { return wrap(_next_seqno, _isn); }
+    int fin_byte();
+    void send_syn();
     //!@}
 };
+
 
 #endif  // SPONGE_LIBSPONGE_TCP_SENDER_HH

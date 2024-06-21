@@ -15,7 +15,6 @@ bool TCPReceiver::segment_received(const TCPSegment &seg) {
     if (seg.header().syn && _initial_seqno.has_value()) {
         return false;
     }
-
     // 1.set initial syn number if necessary
     if (seg.header().syn && !_initial_seqno.has_value()) {
         _initial_seqno = std::make_optional<WrappingInt32>(seg.header().seqno);
@@ -56,12 +55,6 @@ size_t TCPReceiver::window_size() const {
 //    return real_size == 0 ? 1 : real_size;
     return real_size;
 }
-
-size_t TCPReceiver::seg_length(const TCPSegment& segment) {
-    auto real_size = segment.length_in_sequence_space();
-    return real_size == 0 ? 1 : real_size;
-}
-
 // bytes written +1 = 下一个数据号;如果有fin还要再加一(fin对应input_ended而不是eof,byte_stream的eof是对读者的api）
 uint64_t TCPReceiver::real_ackno() const{
     return stream_out().bytes_written() + 1 + (stream_out().input_ended() ? 1: 0);

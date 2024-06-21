@@ -21,6 +21,9 @@ class ByteStream {
     size_t capacity;
     size_t _bytes_read = 0;
     size_t _bytes_written = 0;
+    size_t _current_write_idx = 0;
+    size_t _current_read_idx = 0;
+    size_t _buffer_size = 0;
     bool end = false;
 
 

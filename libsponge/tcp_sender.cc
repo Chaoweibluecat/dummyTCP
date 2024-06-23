@@ -41,8 +41,7 @@ void TCPSender::fill_window() {
         TCPSegment seg;
         bool is_fin_packet = stream_in().input_ended() && (start  + TCPConfig::MAX_PAYLOAD_SIZE > max_sendable_idx);
         int fin_byte = is_fin_packet ? 1 : 0;
-        auto length = std::min(TCPConfig::MAX_PAYLOAD_SIZE,
-                               max_sendable_idx - start + 1  - fin_byte);
+        auto length = std::min(TCPConfig::MAX_PAYLOAD_SIZE, max_sendable_idx - start + 1  - fin_byte);
         std::string data_str = stream_in().read(length);
         seg.payload() = std::move(data_str);
         seg.header().seqno = wrap(start, _isn);

@@ -20,6 +20,7 @@ class TCPConnection {
     //! for 10 * _cfg.rt_timeout milliseconds after both streams have ended,
     //! in case the remote TCPConnection doesn't know we've received its whole stream?
     bool _linger_after_streams_finish{true};
+    uint64_t _last_time_seg_received{0};
 
   public:
     //! \name "Input" interface for the writer
@@ -73,6 +74,7 @@ class TCPConnection {
     //! put each one into the payload of a lower-layer datagram (usually Internet datagrams (IP),
     //! but could also be user datagrams (UDP) or any other kind).
     std::queue<TCPSegment> &segments_out() { return _segments_out; }
+    void fill_window_and_send(const bool send_empty_ack);
 
     //! \brief Is the connection still alive in any way?
     //! \returns `true` if either stream is still running or if the TCPConnection is lingering

@@ -32,7 +32,7 @@ bool TCPReceiver::segment_received(const TCPSegment &seg) {
     if (!seg.header().syn && real_start + seg.length_in_sequence_space() <= stream_out().bytes_written() + 1) {
         return false;
     }
-    if (real_start >= real_ackno() + window_size()) {
+    if (real_start >= real_ackno() + _reassembler.stream_out().remaining_capacity()) {
         return false;
     }
 
@@ -51,10 +51,10 @@ optional<WrappingInt32> TCPReceiver::ackno() const {
 }
 
 size_t TCPReceiver::window_size() const {
-    auto real_size = _reassembler.stream_out().remaining_capacity();
+   return _reassembler.stream_out().remaining_capacity();
 //    return real_size == 0 ? 1 : real_size;
-    return real_size;
 }
+
 // bytes written +1 = 下一个数据号;如果有fin还要再加一(fin对应input_ended而不是eof,byte_stream的eof是对读者的api）
 uint64_t TCPReceiver::real_ackno() const{
     return stream_out().bytes_written() + 1 + (stream_out().input_ended() ? 1: 0);

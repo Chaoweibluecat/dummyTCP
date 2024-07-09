@@ -75,6 +75,9 @@ class TCPConnection {
     //! but could also be user datagrams (UDP) or any other kind).
     std::queue<TCPSegment> &segments_out() { return _segments_out; }
     void fill_window_and_send(const bool send_empty_ack);
+    void enrich_outs_and_send();
+    void send_rst(std::optional<WrappingInt32> seqno);
+    void handle_rst(const TCPSegment &seg);
 
     //! \brief Is the connection still alive in any way?
     //! \returns `true` if either stream is still running or if the TCPConnection is lingering

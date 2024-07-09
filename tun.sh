@@ -15,7 +15,7 @@ start_tun () {
     # Apply NAT (masquerading) only to traffic from CS144's network devices
     iptables -t nat -A PREROUTING -s ${TUN_IP_PREFIX}.${TUNNUM}.0/24 -j CONNMARK --set-mark ${TUNNUM}
     iptables -t nat -A POSTROUTING -j MASQUERADE -m connmark --mark ${TUNNUM}
-    echo 1 > /proc/sys/net/ipv4/ip_forward
+    sysctl -w net.ipv4.ip_forward=1
 }
 
 stop_tun () {

@@ -171,6 +171,7 @@ int main() {
         cerr << "Test 5" << endl;
         ack_rst_syn_sent_test(cfg, base_seq, base_seq, base_seq, false, __LINE__);
         ack_rst_syn_sent_test(cfg, base_seq, base_seq, base_seq + 2, false, __LINE__);
+        // unclean shutdown
         ack_rst_syn_sent_test(cfg, base_seq, base_seq, base_seq, true, __LINE__);
         ack_rst_syn_sent_test(cfg, base_seq, base_seq, base_seq + 2, true, __LINE__);
     } catch (const exception &e) {

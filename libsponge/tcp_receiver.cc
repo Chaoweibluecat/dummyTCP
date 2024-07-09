@@ -16,22 +16,27 @@ bool TCPReceiver::segment_received(const TCPSegment &seg) {
         return false;
     }
     // 1.set initial syn number if necessary
-    if (seg.header().syn && !_initial_seqno.has_value()) {
-        _initial_seqno = std::make_optional<WrappingInt32>(seg.header().seqno);
-        _checkpoint = std::make_optional<uint64_t>(0);
+    if (!_initial_seqno.has_value()) {
+        if (seg.header().syn) {
+            _initial_seqno = std::make_optional<WrappingInt32>(seg.header().seqno);
+            _checkpoint = std::make_optional<uint64_t>(0);
+        } else  {
+            return seg.header().rst;
+        }
     }
+
     // 如果收到fin,且fin前置报文齐全，也没有在等的，（对应input_ended）返回false
     if (stream_out().input_ended()) {
         return false;
     }
-    if (!_initial_seqno.has_value()) {
-        return false;
-    }
     auto real_start = unwrap(seg.header().seqno, _initial_seqno.value(), _checkpoint.value());
-    // 非sync报文,end_idx 小于当前窗口位置 或 start_idx>当前windowsize能承受的最大,丢弃
-    if (!seg.header().syn && real_start + seg.length_in_sequence_space() <= stream_out().bytes_written() + 1) {
+    // 连接建立状态下,end_idx 小于当前窗口位置 ,丢弃
+    // (注意特殊情况length_in_sequence_space()=0时,允许peer的 seqno = 当前ackno,否则不允许）
+    if (!seg.header().syn &&
+        real_start + std::max(1UL, seg.length_in_sequence_space()) <= real_ackno()) {
         return false;
     }
+    // start_idx> 当前windowsize能承受的最大,丢弃
     if (real_start >= real_ackno() + _reassembler.stream_out().remaining_capacity()) {
         return false;
     }

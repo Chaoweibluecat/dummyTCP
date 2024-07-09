@@ -144,3 +144,8 @@ void TCPSender::send_syn() {
     _next_seqno++;
 }
 
+bool TCPSender::valid_syn_sent_ackno(WrappingInt32 ackno) {
+    return unwrap(ackno, _isn, 0) == 1;
+}
+
+

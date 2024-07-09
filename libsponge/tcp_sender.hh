@@ -99,6 +99,7 @@ class TCPSender {
 
     //! \brief relative seqno for the next byte to be sent
     WrappingInt32 next_seqno() const { return wrap(_next_seqno, _isn); }
+    bool valid_syn_sent_ackno(WrappingInt32 ackno);
     int fin_byte();
     void send_syn();
     //!@}
